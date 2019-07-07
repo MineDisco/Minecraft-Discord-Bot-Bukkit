@@ -1,0 +1,13 @@
+discord:
+  botToken: "DEFAULTTOKEN"
+  channelID: "DEFAULTCHANNELID"
+  commandPrefix: "!"
+
+integration:
+  mincraftChatToDiscord: true
+  discordToMinecraftChat: true
+  deathMessagesToDiscord: true
+  joinQuitMessagesToDiscord: true
+  serverSayMessagesToDiscord: true
+  advancementsToDiscord: true
+  serverSayMessageFilterPrefix: '!'

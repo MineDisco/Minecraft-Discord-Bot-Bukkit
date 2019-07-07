@@ -1,0 +1,5 @@
+name: MineDisco
+version: 1.0.0
+main: minedisco.MineDisco
+author: MineDisco
+api-version: 1.14
