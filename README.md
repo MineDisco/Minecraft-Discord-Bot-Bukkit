@@ -1,4 +1,7 @@
 # Minecraft-Discord-Bot-Bukkit
+![](https://img.shields.io/github/release/MineDisco/Minecraft-Discord-Bot-Bukkit.svg?style=flat-square)
+![](https://img.shields.io/badge/Minecraft-1.14-blue.svg?style=flat-square)
+
 Minecraft Bukkit plugin which integrates Minecraft chat to the Discord channel and vice versa. 
 
 ## Features 
