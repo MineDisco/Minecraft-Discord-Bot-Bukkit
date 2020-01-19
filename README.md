@@ -7,9 +7,11 @@ Minecraft Bukkit plugin which integrates Minecraft to the Discord and vice versa
 ## Features 
 * Messages from Minecraft chat can be delivered to the selected Discord channel
 * Messages from selected Discord channel can be delivered to the Minecraft Chat
+* Different types of messages can be turned off by using commands or by editing the config file 
 * Minecraft users can be authenticated using Discord 
 * Existing users vote if new user should be let in to the server on the Discord
-* Different types of messages can be turned off by using commands or by editing the config file 
+![](https://raw.githubusercontent.com/MineDisco/Minecraft-Discord-Bot-Bukkit/WhitelistFromDiscord/Vote%20Example.PNG)
+
 
 ### Also following can set to be sent to the Discord channel:
 * Death notices
