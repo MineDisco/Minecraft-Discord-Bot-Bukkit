@@ -5,7 +5,7 @@ import com.github.rainestormee.jdacommand.CommandAttribute;
 import com.github.rainestormee.jdacommand.CommandDescription;
 
 import minedisco.MineDisco;
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.api.entities.Message;
 
 @CommandDescription(name = "deathmessages", triggers = { "deathmessages",
         "death", "deadMessagesToDiscord" }, description = "Sets on/off player death messages in Discord", attributes = {

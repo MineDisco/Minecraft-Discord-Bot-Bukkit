@@ -9,10 +9,13 @@ import com.github.rainestormee.jdacommand.CommandHandler;
 import minedisco.discord.commands.Set;
 import minedisco.discord.handler.MessageHandler;
 
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.Role;
+
+
+import net.dv8tion.jda.api.entities.TextChannel;
 
 /**
  *
@@ -33,7 +36,7 @@ public class DiscordBot {
     try {
       this.logger = logger;
       COMMANDHANDLER.registerCommand(new Set());
-      this.jda = new JDABuilder(token).addEventListener(new MessageHandler(COMMANDHANDLER)).build();
+      this.jda = new JDABuilder(token).addEventListeners(new MessageHandler(COMMANDHANDLER)).build();
       this.jda.awaitReady();
       sendMessageToChannel("Server online");
     } catch (LoginException e) {
@@ -75,6 +78,34 @@ public class DiscordBot {
     } else {
       this.logger.warning("You have not set integrated Discord channel ID.");
     }
+  }
+
+  public boolean addDefaultRoleToUser(String discordID) {
+    if (DiscordBotSettings.ChannelRoleIsSet() && DiscordBotSettings.discordChannelIsSet()) {
+        TextChannel textChannel = this.jda.getTextChannelById(DiscordBotSettings.getDiscordChannelID());
+        Role role = textChannel.getGuild().getRoleById(DiscordBotSettings.getchannelRoleID());
+            if (role != null) {
+                textChannel.getGuild().addRoleToMember(discordID, role).queue();
+                return true;
+            }
+    } else {
+      this.logger.warning("You have not set integrated roles ID");
+    }  
+    return false;
+  }
+
+  public boolean removeDefaultRoleToUser(String discordID) {
+    if (DiscordBotSettings.ChannelRoleIsSet() && DiscordBotSettings.discordChannelIsSet()) {
+        TextChannel textChannel = this.jda.getTextChannelById(DiscordBotSettings.getDiscordChannelID());
+        Role role = textChannel.getGuild().getRoleById(DiscordBotSettings.getchannelRoleID());
+            if (role != null) {
+                textChannel.getGuild().removeRoleFromMember(discordID, role).queue();
+                return true;
+            }
+    } else {
+      this.logger.warning("You have not set integrated roles ID");
+    } 
+    return false;
   }
 
   public void shutConnection() {

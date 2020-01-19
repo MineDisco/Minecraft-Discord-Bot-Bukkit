@@ -6,7 +6,7 @@ import com.github.rainestormee.jdacommand.CommandDescription;
 
 import minedisco.MineDisco;
 import minedisco.discord.DiscordBotSettings;
-import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.api.entities.Message;
 
 @CommandDescription(name = "discordtominecraftchat", triggers = { "discordtominecraftchat",
         "discotomine" }, description = "Sets on/off chat integration from Discord to Minecraft", attributes = {

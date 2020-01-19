@@ -1,6 +1,8 @@
 discord:
   botToken: "DEFAULTTOKEN"
   channelID: "DEFAULTCHANNELID"
+  requestAccessChannelID: "ACCESSREQUESTCHANNELID"
+  syncedChannelRoleID: "DEFAULTROLE"
   commandPrefix: "!"
 
 integration:
@@ -10,4 +12,5 @@ integration:
   joinQuitMessagesToDiscord: true
   serverSayMessagesToDiscord: true
   advancementsToDiscord: true
+  discordWhitelist: true
   serverSayMessageFilterPrefix: '!'
