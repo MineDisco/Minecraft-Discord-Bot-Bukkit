@@ -6,7 +6,9 @@ import minedisco.discord.DiscordBot;
 import minedisco.minecraft.ChatListener;
 import minedisco.minecraft.PlayerAdvancementListener;
 import minedisco.minecraft.PlayerJoinQuitListener;
+import minedisco.minecraft.PlayerLoginListener;
 import minedisco.minecraft.ServerCommandListener;
+import minedisco.minecraft.WhiteListHandler;
 import minedisco.minecraft.PlayerDeathListener;
 
 /**
@@ -19,6 +21,8 @@ public final class MineDisco extends JavaPlugin {
     private PlayerDeathListener playerDeathListener;
     private ServerCommandListener serverCommandListener;
     private PlayerAdvancementListener playerAdvancementListener;
+    private PlayerLoginListener playerLoginListener;
+    private WhiteListHandler whitelistHandler;
 
     @Override
     public void onEnable() {
@@ -38,7 +42,7 @@ public final class MineDisco extends JavaPlugin {
                 enableChatListener();
             }
 
-            if (this.getConfig().getBoolean("integration.deadMessagesToDiscord")) {
+            if (this.getConfig().getBoolean("integration.deathMessagesToDiscord")) {
                 enablePlayerDeathListener();
             }
 
@@ -48,6 +52,10 @@ public final class MineDisco extends JavaPlugin {
 
             if (this.getConfig().getBoolean("integration.advancementsToDiscord")) {
                 enablePlayerAdvancementListener();
+            }
+
+            if (this.getConfig().getBoolean("integration.discordWhitelist")) {
+                enablePlayerLoginListener();
             }
             
         }
@@ -103,7 +111,26 @@ public final class MineDisco extends JavaPlugin {
     }
 
     public void disablePlayerAdvancementListener() {
+        this.whitelistHandler = null;
         HandlerList.unregisterAll(this.playerAdvancementListener);
+    }
+
+    public void enablePlayerLoginListener() {
+        this.whitelistHandler = new WhiteListHandler(bot, this);
+        this.playerLoginListener = new PlayerLoginListener(bot, getServer(), this.whitelistHandler);
+        getServer().getPluginManager().registerEvents(this.playerLoginListener, this);
+    }
+
+    public WhiteListHandler getWhiteListHandler() {
+        return this.whitelistHandler;
+    }
+
+    public boolean isLoginListenerEnabled() {
+        return this.whitelistHandler != null;
+    }
+
+    public void disablePlayerLoginListener() {
+        HandlerList.unregisterAll(this.playerLoginListener);
     }
 
 }

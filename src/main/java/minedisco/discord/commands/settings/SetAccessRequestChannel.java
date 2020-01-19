@@ -7,16 +7,16 @@ import net.dv8tion.jda.api.entities.Message;
 
 import minedisco.discord.DiscordBotSettings;
 
-@CommandDescription(name = "integratedchannel", triggers = {"integratedchannel",
-        "setintegratedchannel" }, description = "Sets current channel to be integrated with Minecraft.", attributes = {
+@CommandDescription(name = "AccessRequestChannel", triggers = {"accessrequestchannel",
+        "setaccessrequestchannel" }, description = "Sets current channel to be channel where Bot sends Minecraft access votes.", attributes = {
                 @CommandAttribute(key = "OwnerOnly", value = "1"), 
                 @CommandAttribute(key = "canUseOnAnyChannel", value = "1") })
-public class SetIntegratedChannel implements AbstractCommand<Message> {
+public class SetAccessRequestChannel implements AbstractCommand<Message> {
 
     @Override
     public void execute(Message message, String args) {
-        DiscordBotSettings.setDiscordChannelID(message.getChannel().getId());
-        message.getChannel().sendMessage("This channel is now integrated with Minecraft chat").queue();
+        DiscordBotSettings.setRequestAccessChannelID(message.getChannel().getId());
+        message.getChannel().sendMessage("This channel is now handle requests to get access to Minecraft Server").queue();
     }
 
 }
