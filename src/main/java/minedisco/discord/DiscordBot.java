@@ -36,7 +36,7 @@ public class DiscordBot {
     try {
       this.logger = logger;
       COMMANDHANDLER.registerCommand(new Set());
-      this.jda = new JDABuilder(token).addEventListeners(new MessageHandler(COMMANDHANDLER)).build();
+      this.jda = JDABuilder.createDefault(token).addEventListeners(new MessageHandler(COMMANDHANDLER)).build();
       this.jda.awaitReady();
       sendMessageToChannel("Server online");
     } catch (LoginException e) {
