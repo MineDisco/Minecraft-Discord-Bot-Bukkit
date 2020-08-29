@@ -2,6 +2,7 @@
 # Standard Maven .gitignore
 #
 target/
+.st4-cache/
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
