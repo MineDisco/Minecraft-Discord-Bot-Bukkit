@@ -27,7 +27,7 @@ public class ServerCommandListener implements Listener {
     public void onServerChat(ServerCommandEvent event) {
         if (event.getCommand().toLowerCase().startsWith("say") && event.getCommand().length() >= 4 && !event.getCommand().substring(4).toLowerCase().startsWith(MineDisco
                 .getPlugin(MineDisco.class).getConfig().getString("integration.serverSayMessageFilterPrefix"))) {
-            bot.sendMessageToChannel("<Server> " + event.getCommand().substring(4));
+            bot.sendMessageToChannel("<Server> ", event.getCommand().substring(4));
         }
 
     }

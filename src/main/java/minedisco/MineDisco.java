@@ -3,26 +3,22 @@ package minedisco;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
 import minedisco.discord.DiscordBot;
-import minedisco.minecraft.ChatListener;
-import minedisco.minecraft.PlayerAdvancementListener;
-import minedisco.minecraft.PlayerJoinQuitListener;
-import minedisco.minecraft.PlayerLoginListener;
-import minedisco.minecraft.ServerCommandListener;
-import minedisco.minecraft.WhiteListHandler;
-import minedisco.minecraft.PlayerDeathListener;
+import minedisco.minecraft.*;
 
 /**
  *
  */
 public final class MineDisco extends JavaPlugin {
     private DiscordBot bot;
-    private PlayerJoinQuitListener playerJoinQuitListener;
+    private PlayerJoinQuitChatListener playerJoinQuitChatListener;
+    private PlayerJoinQuitStatusListener playerJoinQuitStatusListener;
     private ChatListener chatListener;
     private PlayerDeathListener playerDeathListener;
     private ServerCommandListener serverCommandListener;
     private PlayerAdvancementListener playerAdvancementListener;
     private PlayerLoginListener playerLoginListener;
     private WhiteListHandler whitelistHandler;
+
 
     @Override
     public void onEnable() {
@@ -35,7 +31,11 @@ public final class MineDisco extends JavaPlugin {
             this.bot = new DiscordBot(token, getLogger());
 
             if (this.getConfig().getBoolean("integration.joinQuitMessagesToDiscord")) {
-                enablePlayerJoinQuitListener();
+                enablePlayerJoinQuitChatListener();
+            }
+
+            if (this.getConfig().getBoolean("integration.serverStatusChannel")) {
+                enablePlayerStatusListener();
             }
 
             if (this.getConfig().getBoolean("integration.mincraftChatToDiscord")) {
@@ -57,25 +57,37 @@ public final class MineDisco extends JavaPlugin {
             if (this.getConfig().getBoolean("integration.discordWhitelist")) {
                 enablePlayerLoginListener();
             }
-            
+
         }
     }
 
     @Override
     public void onDisable() {
+
         if (this.bot != null) {
             bot.shutConnection();
         }
         getLogger().info("MineDisco is disabled");
     }
 
-    public void enablePlayerJoinQuitListener() {
-        this.playerJoinQuitListener = new PlayerJoinQuitListener(bot, getServer());
-        getServer().getPluginManager().registerEvents(this.playerJoinQuitListener, this);
+    public void enablePlayerJoinQuitChatListener() {
+        this.playerJoinQuitChatListener = new PlayerJoinQuitChatListener(bot, getServer());
+        getServer().getPluginManager().registerEvents(this.playerJoinQuitChatListener, this);
     }
 
-    public void disablePlayerJoinQuitListener() {
-        HandlerList.unregisterAll(this.playerJoinQuitListener);
+    public void disablePlayerJoinQuitChatListener() {
+        HandlerList.unregisterAll(this.playerJoinQuitChatListener);
+    }
+
+    public void enablePlayerStatusListener() {
+        this.playerJoinQuitStatusListener = new PlayerJoinQuitStatusListener(bot);
+        this.bot.enableStatusChannel();
+        getServer().getPluginManager().registerEvents(this.playerJoinQuitStatusListener, this);
+    }
+
+    public void disablePlayerStatusListener() {
+        this.bot.setStatusOffline();
+        HandlerList.unregisterAll(this.playerJoinQuitStatusListener);
     }
 
     public void enableChatListener() {
@@ -117,7 +129,7 @@ public final class MineDisco extends JavaPlugin {
 
     public void enablePlayerLoginListener() {
         this.whitelistHandler = new WhiteListHandler(bot, this);
-        this.playerLoginListener = new PlayerLoginListener(bot, getServer(), this.whitelistHandler);
+        this.playerLoginListener = new PlayerLoginListener(this.whitelistHandler);
         getServer().getPluginManager().registerEvents(this.playerLoginListener, this);
     }
 

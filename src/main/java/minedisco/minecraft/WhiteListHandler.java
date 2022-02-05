@@ -34,7 +34,7 @@ public class WhiteListHandler {
         this.server = plugin.getServer();
         this.plugin = plugin;
         reloadCustomConfig();
-    
+
     }
 
     public String startAuthProcess(String playerName, String uuid, String ipAddress) {
@@ -44,37 +44,41 @@ public class WhiteListHandler {
         getCustomConfig().set(uuid + ".accessVoteMessageID", "");
         getCustomConfig().set(uuid + ".accessVoteUp", 0);
         getCustomConfig().set(uuid + ".accessVoteDown", 0);
-        getCustomConfig().set(uuid + ".authDone", false); 
-        getCustomConfig().set(uuid + ".allowedToJoin", false); 
+        getCustomConfig().set(uuid + ".authDone", false);
+        getCustomConfig().set(uuid + ".allowedToJoin", false);
         ArrayList<String> tmpAllowedIP = new ArrayList<String>();
         tmpAllowedIP.add(ipAddress);
         getCustomConfig().set(uuid + ".allowedIPs", tmpAllowedIP);
-        int random = new Random().nextInt(100000-9999) + 9999;
+        int random = new Random().nextInt(100000 - 9999) + 9999;
         while (firstTimeAuthTokens.containsKey(Integer.toString(random))) {
-            random = new Random().nextInt(100000-9999) + 9999;
+            random = new Random().nextInt(100000 - 9999) + 9999;
         }
-        firstTimeAuthTokens.put(Integer.toString(random), new String[] {uuid, ipAddress, System.currentTimeMillis() + "" });
+        firstTimeAuthTokens.put(Integer.toString(random),
+                new String[] { uuid, ipAddress, System.currentTimeMillis() + "" });
         saveCustomConfig();
         return Integer.toString(random);
     }
 
-    public String startIPAuthProcess (String uuid, String ipAddress) {
+    public String startIPAuthProcess(String uuid, String ipAddress) {
         cleanAuthTokens();
-        int random = new Random().nextInt(10000-999) + 999;
+        int random = new Random().nextInt(10000 - 999) + 999;
         while (ipAuthTokens.containsKey(Integer.toString(random))) {
-            random = new Random().nextInt(10000-999) + 999;
+            random = new Random().nextInt(10000 - 999) + 999;
         }
-        ipAuthTokens.put(Integer.toString(random), new String[] {uuid, ipAddress, System.currentTimeMillis() + ""});
+        ipAuthTokens.put(Integer.toString(random), new String[] { uuid, ipAddress, System.currentTimeMillis() + "" });
         return Integer.toString(random);
     }
 
-
     public String authFromDiscord(String authToken, String discordID) {
         cleanAuthTokens();
+        if (firstTimeAuthTokens.containsKey(authToken) && !getUUIDByDiscordID(discordID).isEmpty()) {
+            return "You have already registered using other name, please change your name back or contact to server owner.";
+        }
+
         if (firstTimeAuthTokens.containsKey(authToken)) {
             String uuid = firstTimeAuthTokens.get(authToken)[0];
             getCustomConfig().set(uuid + ".discordID", discordID);
-            getCustomConfig().set(uuid + ".authDone", true); 
+            getCustomConfig().set(uuid + ".authDone", true);
             getCustomConfig().set(uuid + ".allowedToJoin", true);
             firstTimeAuthTokens.remove(authToken);
             saveCustomConfig();
@@ -92,26 +96,28 @@ public class WhiteListHandler {
                 return "IP auth done! You can now log in.";
             }
         }
-        return  "";
+        return "";
     }
 
     public void accessVote(String accessVoteMessageID, boolean voteUp, int vote) {
         String owner = getUUIDByAccessVoteMessageID(accessVoteMessageID);
         if (!owner.isEmpty()) {
             if (voteUp) {
-                getCustomConfig().set(owner + ".accessVoteUp", getCustomConfig().getInt(owner + ".accessVoteUp") + vote);               
-            } else  {
-                getCustomConfig().set(owner + ".accessVoteDown", getCustomConfig().getInt(owner + ".accessVoteDown") + vote);
+                getCustomConfig().set(owner + ".accessVoteUp",
+                        getCustomConfig().getInt(owner + ".accessVoteUp") + vote);
+            } else {
+                getCustomConfig().set(owner + ".accessVoteDown",
+                        getCustomConfig().getInt(owner + ".accessVoteDown") + vote);
             }
             saveCustomConfig();
 
             if (checkIfAccessVoteCountPositive(owner)) {
-                bot.addDefaultRoleToUser(getCustomConfig().getString(owner +".discordID"));
+                bot.addDefaultRoleToUser(getCustomConfig().getString(owner + ".discordID"));
             } else {
-                bot.removeDefaultRoleToUser(getCustomConfig().getString(owner +".discordID"));
+                bot.removeDefaultRoleToUser(getCustomConfig().getString(owner + ".discordID"));
             }
         }
-        
+
     }
 
     private String getUUIDByAccessVoteMessageID(String accessVoteMessageID) {
@@ -131,10 +137,10 @@ public class WhiteListHandler {
         }
     }
 
-
-    private String getUUIDByDiscordID(String discordID) {
+    public String getUUIDByDiscordID(String discordID) {
         for (String var : getCustomConfig().getKeys(false)) {
-            if (getCustomConfig().get(var + ".discordID") != null && getCustomConfig().get(var + ".discordID").equals(discordID)) {
+            if (getCustomConfig().get(var + ".discordID") != null
+                    && getCustomConfig().getString(var + ".discordID").equals(discordID)) {
                 return var;
             }
         }
@@ -143,14 +149,16 @@ public class WhiteListHandler {
 
     public boolean checkIfAccessVoteCountPositiveByDiscordID(String discordID) {
         String uuid = getUUIDByDiscordID(discordID);
-        if (getCustomConfig().getInt(uuid + ".accessVoteUp") - getCustomConfig().getInt(uuid + ".accessVoteDown") >= 1) {
+        if (getCustomConfig().getInt(uuid + ".accessVoteUp")
+                - getCustomConfig().getInt(uuid + ".accessVoteDown") >= 1) {
             return true;
         }
         return false;
     }
 
     public boolean checkIfAccessVoteCountPositive(String uuid) {
-        if (getCustomConfig().getInt(uuid + ".accessVoteUp") - getCustomConfig().getInt(uuid + ".accessVoteDown") >= 1) {
+        if (getCustomConfig().getInt(uuid + ".accessVoteUp")
+                - getCustomConfig().getInt(uuid + ".accessVoteDown") >= 1) {
             return true;
         }
         return false;
@@ -177,7 +185,7 @@ public class WhiteListHandler {
             this.whitelistConfigFile = new File(this.plugin.getDataFolder(), this.whitelistName);
         }
         this.whitelistConfig = YamlConfiguration.loadConfiguration(whitelistConfigFile);
-    
+
         InputStream defConfigStream = plugin.getResource(this.whitelistName);
         if (defConfigStream != null) {
             YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(new InputStreamReader(defConfigStream));
@@ -205,19 +213,19 @@ public class WhiteListHandler {
 
     private void cleanAuthTokens() {
         if (firstTimeAuthTokens.size() > 0) {
-            for (Iterator<Entry<String,String[]>> var = firstTimeAuthTokens.entrySet().iterator(); var.hasNext();) {
-                Entry<String,String[]> entry = var.next();
-                if (System.currentTimeMillis() - Long.parseLong(entry.getValue()[2]) > 900000 ) {
+            for (Iterator<Entry<String, String[]>> var = firstTimeAuthTokens.entrySet().iterator(); var.hasNext();) {
+                Entry<String, String[]> entry = var.next();
+                if (System.currentTimeMillis() - Long.parseLong(entry.getValue()[2]) > 900000) {
                     var.remove();
                 }
-                
+
             }
         }
 
         if (ipAuthTokens.size() > 0) {
-            for (Iterator<Entry<String,String[]>> var = ipAuthTokens.entrySet().iterator(); var.hasNext();) {
-                Entry<String,String[]> entry = var.next();
-                if (System.currentTimeMillis() - Long.parseLong(entry.getValue()[2]) > 900000 ) {
+            for (Iterator<Entry<String, String[]>> var = ipAuthTokens.entrySet().iterator(); var.hasNext();) {
+                Entry<String, String[]> entry = var.next();
+                if (System.currentTimeMillis() - Long.parseLong(entry.getValue()[2]) > 900000) {
                     var.remove();
                 }
             }

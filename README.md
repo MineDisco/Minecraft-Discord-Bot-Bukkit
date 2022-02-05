@@ -1,6 +1,6 @@
 # Minecraft-Discord-Bot-Bukkit
 ![](https://img.shields.io/github/release/MineDisco/Minecraft-Discord-Bot-Bukkit.svg?style=flat-square)
-![](https://img.shields.io/badge/Minecraft-1.16.2-blue.svg?style=flat-square)
+![](https://img.shields.io/badge/Minecraft-1.18.1-blue.svg?style=flat-square)
 
 Minecraft Bukkit plugin which integrates Minecraft to the Discord and vice versa. 
 
@@ -17,6 +17,7 @@ Minecraft Bukkit plugin which integrates Minecraft to the Discord and vice versa
 * Death notices
 * Advancement messages
 * Join/quit messages (with a count of the current players online) 
+* Server status to specific Discord Channel with list of users currently online
 * Server "say" messages from the server console
 
 ## Requirements
@@ -40,7 +41,7 @@ Minecraft Bukkit plugin which integrates Minecraft to the Discord and vice versa
 9. If bot is running at the server and it has correct token, you can write command "!set integratedchannel" on the textchannel which you want integrate with Minecraft chat
 10. Select channel were you want access voting messages to appear. (You should change channel permission to allow only readin channel and its history and disallow everything else)
 11. Create role to the server that has the access to the integrated channel and access requesting channel 
-12. Copy role's ID (Enable development mode from the Discord settings and then right click role name) and activate it to the bot by editing config file or using command "!set role ROLEIDHERE"
+12. Copy role's ID (Enable development mode from the Discord settings and then right click role name) and activate it to the bot by editing config file or using command "!set SERVERNAME role ROLEIDHERE"
 
 ## Configuration file
 ```yml
@@ -50,33 +51,37 @@ discord:
   requestAccessChannelID: "ACCESSREQUESTCHANNELID" # Discord channel id of the channel were already allowed users vote if new user should be let in to the server
   syncedChannelRoleID: "DEFAULTROLE" # Discord role id of the role that have access to integrated Discord and request voting channel 
   commandPrefix: "!" # Prefix that has to be used before bot commands
-
+  serverName: "SERVERNAME" # Server identificator, used on commands and before messages
+  statusChannelID: "STATUSCHANNELID" # Discord channel id where status message is send
+  statusMessageID: "STATUSMESSAGEID" # Discord message id where status is updated
 
 integration:
   mincraftChatToDiscord: true       # Enables message integration from Minecraft chat to Discord channel
   discordToMinecraftChat: true      # Enables messages integration from Discord channel to Minecraft chat 
   deathMessagesToDiscord: true      # Enables death notices to be delivered to Discord channel
   joinQuitMessagesToDiscord: true   # Enables join/quit notices to be delivered to Discord channel
+  serverStatusChannel: true         # Enables status channel and message to the Discord
   serverSayMessagesToDiscord: true  # Enables server say messages to be delivered to Discord channel
   advancementsToDiscord: true       # Enables join/quit notices to be delivered to Discord channel
   discordWhitelist: true            # Enables Discord whitelist (remember to disable original whitelist from the server settings)
   serverSayMessageFilterPrefix: '!' # Filters server say messages that begins with this prefix
 ```
 ## Commands
-Only Discord server owner can use these commands.
+Only Discord server owner can use these commands. SERVERNAME
 
 | Command        | Explanation |
 | ------------- |--------------|
-| `!set integratedchannel` | **Integrates Discord channel where command was send with the Minecraft chat**|
-| `!set prefix NEWPREFIX` | **Changes prefix used before commands. Default is "!"** |
-| `!set minecraftchattodiscord`  | **Enable/disable message flow from the Minecraft chat to the Discord** |
-| `!set discordtominecraftchat ` | **Enable/disable message flow from the Discord channel to the Minecraft** |
-| `!set deadMessagesToDiscord` | **Enable/disable death notices to the Discord channel** |
-| `!set joinQuitMessagesToDiscord ` | **Enable/disable join/quit messages to the Discord channel** |
-| `!set serverSayMessagesToDiscord ` | **Enable/disable server console "say"-messages to the Discord channel** |
-| `!set advancementstodiscord ` | **Enable/disable advancement messages to the Discord channel** |
-| `!set accessrequestchannel ` | **Set channel were bot should post access voting messages** |
-| `!set role ROLEID ` | **Set role id which bot should add to authenticated user to get access to the other Minecraft Discord channels** |
+| `!set SERVERNAME integratedchannel` | **Integrates Discord channel where command was send with the Minecraft chat**|
+| `!set SERVERNAME prefix NEWPREFIX` | **Changes prefix used before commands. Default is "!"** |
+| `!set SERVERNAME minecraftchattodiscord`  | **Enable/disable message flow from the Minecraft chat to the Discord** |
+| `!set SERVERNAME discordtominecraftchat ` | **Enable/disable message flow from the Discord channel to the Minecraft** |
+| `!set SERVERNAME deadMessagesToDiscord` | **Enable/disable death notices to the Discord channel** |
+| `!set SERVERNAME joinQuitMessagesToDiscord ` | **Enable/disable join/quit messages to the Discord channel** |
+| `!set SERVERNAME serverStatusChannelToDiscord ` | **Enable/disable server status channel and message to the Discord** |
+| `!set SERVERNAME serverSayMessagesToDiscord ` | **Enable/disable server console "say"-messages to the Discord channel** |
+| `!set SERVERNAME advancementstodiscord ` | **Enable/disable advancement messages to the Discord channel** |
+| `!set SERVERNAME accessrequestchannel ` | **Set channel were bot should post access voting messages** |
+| `!set SERVERNAME role ROLEID ` | **Set role id which bot should add to authenticated user to get access to the other Minecraft Discord channels** |
 
 
 

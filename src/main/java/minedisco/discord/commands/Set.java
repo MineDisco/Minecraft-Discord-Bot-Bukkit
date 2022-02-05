@@ -16,6 +16,7 @@ import minedisco.discord.commands.settings.SetIntegratedChannel;
 import minedisco.discord.commands.settings.SetJoinQuitMessagesToDiscord;
 import minedisco.discord.commands.settings.SetMinecraftChatToDiscord;
 import minedisco.discord.commands.settings.SetServerSayMessagesToDiscord;
+import minedisco.discord.commands.settings.SetServerStatusChannelToDiscord;
 import net.dv8tion.jda.api.entities.Message;
 
 @CommandDescription(name = "set", triggers = { "set", "settings" }, description = "Sets bot settings.", attributes = {
@@ -28,14 +29,22 @@ public class Set implements AbstractCommand<Message> {
         SETTINGSHANDLER.registerCommands(new SetIntegratedChannel(), new SetAdvancementsToDiscord(),
                 new SetDeathMessagesToDiscord(), new SetDiscordToMinecraftChat(), new SetJoinQuitMessagesToDiscord(),
                 new SetMinecraftChatToDiscord(), new SetServerSayMessagesToDiscord(), new SetCommandPrefix(), 
-                new SetAccessRequestChannel(), new SetDefaultRole());
+                new SetAccessRequestChannel(), new SetDefaultRole(), new SetServerStatusChannelToDiscord());
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void execute(Message message, String args) {
-        String[] splitMessage = args.split("\\s+", 2);
-        AbstractCommand<Message> command = SETTINGSHANDLER.findCommand(splitMessage[0].toLowerCase());
+        String[] splitMessage = args.split("\\s+", 3);
+        if(splitMessage == null || splitMessage.length < 2) {   
+            return;
+        }
+
+        if (!splitMessage[0].equals(DiscordBotSettings.getServerName())) {
+            return;
+        }
+
+        AbstractCommand<Message> command = SETTINGSHANDLER.findCommand(splitMessage[1].toLowerCase());
         if (command == null) {
             return;
         }
@@ -48,7 +57,7 @@ public class Set implements AbstractCommand<Message> {
             return;
         }
         
-        SETTINGSHANDLER.execute(command, message, splitMessage.length > 1 ? splitMessage[1] : "");
+        SETTINGSHANDLER.execute(command, message, splitMessage.length > 2 ? splitMessage[2] : "");
     }
 
     private boolean checkCommandExecuteRights(AbstractCommand<Message> command, Message message) {

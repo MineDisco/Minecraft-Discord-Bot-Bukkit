@@ -15,11 +15,11 @@ public class SetJoinQuitMessagesToDiscord implements AbstractCommand<Message> {
     @Override
     public void execute(Message message, String args) {
         if (MineDisco.getPlugin(MineDisco.class).getConfig().getBoolean("integration.joinQuitMessagesToDiscord")) {
-            MineDisco.getPlugin(MineDisco.class).disablePlayerJoinQuitListener();
+            MineDisco.getPlugin(MineDisco.class).disablePlayerJoinQuitChatListener();
             MineDisco.getPlugin(MineDisco.class).getConfig().set("integration.joinQuitMessagesToDiscord", false);
             message.getChannel().sendMessage("Player death messages disabled").queue();
         } else {
-            MineDisco.getPlugin(MineDisco.class).enablePlayerJoinQuitListener();
+            MineDisco.getPlugin(MineDisco.class).enablePlayerJoinQuitChatListener();
             MineDisco.getPlugin(MineDisco.class).getConfig().set("integration.joinQuitMessagesToDiscord", true);        
             message.getChannel().sendMessage("Player death messages enabled").queue();
         }

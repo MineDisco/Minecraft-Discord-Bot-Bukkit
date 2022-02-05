@@ -20,7 +20,7 @@ public class ChatListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onChat(AsyncPlayerChatEvent event) {
-        bot.sendMessageToChannel("<" + event.getPlayer().getDisplayName() + "> " + event.getMessage());
+        bot.sendMessageToChannel("<" + event.getPlayer().getDisplayName() + "> ",  event.getMessage());
     }
 
 }

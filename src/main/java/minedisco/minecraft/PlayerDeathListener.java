@@ -17,7 +17,7 @@ public class PlayerDeathListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void PlayerDeath(PlayerDeathEvent event) {
-        bot.sendMessageToChannel(event.getDeathMessage());
+        bot.sendMessageToChannel("💀", event.getDeathMessage() + " 😢");
     }
 
 }

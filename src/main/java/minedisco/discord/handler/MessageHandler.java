@@ -39,10 +39,15 @@ public class MessageHandler extends ListenerAdapter {
                 && MineDisco.getPlugin(MineDisco.class).isLoginListenerEnabled()) {
                  if (event.getMessage().getContentStripped().trim().length() > 3 && event.getMessage().getContentStripped().trim().length() < 6) {
                     String m = MineDisco.getPlugin(MineDisco.class).getWhiteListHandler().authFromDiscord(event.getMessage().getContentStripped(), event.getAuthor().getId());               
-                    event.getChannel().sendMessage(m).queue();
+                    if (!m.isEmpty()) {
+                        event.getChannel().sendMessage(m).queue();
+                    } else  {
+                        return;
+                    }
+                    
                     if (DiscordBotSettings.requestAccessChannelIsSet() && event.getMessage().getContentStripped().trim().length() == 5 ) {
                         event.getJDA().getTextChannelById(DiscordBotSettings.getRequestAccessID())
-                        .sendMessage(event.getAuthor().getAsMention() + " is requesting access to the Minecraft server. "+ 
+                        .sendMessage(event.getAuthor().getAsMention() + " is requesting access to the Panic Minecraft " + DiscordBotSettings.getServerName() + " server. "+ 
                         event.getJDA().getTextChannelById(DiscordBotSettings.getRequestAccessID()).getAsMention()+
                         " please vote by using reactions to this message.")
                         .queue(msg -> {                           
