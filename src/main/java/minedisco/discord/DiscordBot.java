@@ -7,22 +7,21 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
-import javax.security.auth.login.LoginException;
-
-import com.github.rainestormee.jdacommand.CommandHandler;
+import javax.annotation.Nonnull;
 
 import minedisco.MineDisco;
-import minedisco.discord.commands.Set;
 import minedisco.discord.handler.MessageHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.utils.MarkdownUtil;
 
 /**
@@ -30,7 +29,6 @@ import net.dv8tion.jda.api.utils.MarkdownUtil;
  */
 public class DiscordBot {
 
-  private static final CommandHandler<Message> COMMANDHANDLER = new CommandHandler<Message>();
   public static final DiscordBotSettings BOTSETTINGS = new DiscordBotSettings();
   private JDA jda;
   private Logger logger;
@@ -44,12 +42,8 @@ public class DiscordBot {
   public DiscordBot(String token, Logger logger) {
     try {
       this.logger = logger;
-      COMMANDHANDLER.registerCommand(new Set());
-      this.jda = JDABuilder.createDefault(token).addEventListeners(new MessageHandler(COMMANDHANDLER)).build();
+      this.jda = JDABuilder.createDefault(token).enableIntents(GatewayIntent.GUILD_MESSAGES,GatewayIntent.DIRECT_MESSAGES,GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGE_REACTIONS, GatewayIntent.GUILD_EMOJIS_AND_STICKERS).addEventListeners(new MessageHandler()).build();
       this.jda.awaitReady();
-
-    } catch (LoginException e) {
-      this.logger.severe("Logging to the Discord was not successful. Please check, is the token valid.");
     } catch (InterruptedException e) {
       this.logger.severe("Error waiting JDA to load.");
     }
@@ -69,7 +63,7 @@ public class DiscordBot {
    *
    * @param message
    */
-  public void sendMessageToChannel(String sender, String message) {
+  public void sendMessageToChannel(@Nonnull String sender, @Nonnull String message) {
     if (DiscordBotSettings.discordChannelIsSet()) {
       TextChannel textChannel = this.jda.getTextChannelById(DiscordBotSettings.getDiscordChannelID());
       if (textChannel != null) {
@@ -88,7 +82,7 @@ public class DiscordBot {
    *
    * @param message
    */
-  public void sendMessageToChannelAndWait(String message) {
+  public void sendMessageToChannelAndWait(@Nonnull String message) {
     if (DiscordBotSettings.discordChannelIsSet()) {
       TextChannel textChannel = this.jda.getTextChannelById(DiscordBotSettings.getDiscordChannelID());
       if (textChannel != null) {
@@ -101,12 +95,16 @@ public class DiscordBot {
     }
   }
 
-  public boolean addDefaultRoleToUser(String discordID) {
-    if (DiscordBotSettings.ChannelRoleIsSet() && DiscordBotSettings.discordChannelIsSet()) {
+  public boolean addDefaultRoleToUser(@Nonnull String discordID) {
+    if (DiscordBotSettings.ChannelRoleIsSet() && DiscordBotSettings.discordChannelIsSet() && discordID != null) {
       TextChannel textChannel = this.jda.getTextChannelById(DiscordBotSettings.getDiscordChannelID());
+      if (textChannel == null) {
+        return false;
+      }
       Role role = textChannel.getGuild().getRoleById(DiscordBotSettings.getchannelRoleID());
-      if (role != null) {
-        textChannel.getGuild().addRoleToMember(discordID, role).queue();
+      Member member = textChannel.getGuild().getMemberById(discordID);
+      if (role != null && member != null) {
+        textChannel.getGuild().addRoleToMember(member.getUser(), role).queue();
         return true;
       }
     } else {
@@ -115,13 +113,16 @@ public class DiscordBot {
     return false;
   }
 
-  public boolean removeDefaultRoleToUser(String discordID) {
+  public boolean removeDefaultRoleToUser(@Nonnull String discordID) {
     if (DiscordBotSettings.ChannelRoleIsSet() && DiscordBotSettings.discordChannelIsSet()) {
       TextChannel textChannel = this.jda.getTextChannelById(DiscordBotSettings.getDiscordChannelID());
-      Role role = textChannel.getGuild().getRoleById(DiscordBotSettings.getchannelRoleID());
-      if (role != null) {
-        textChannel.getGuild().removeRoleFromMember(discordID, role).queue();
-        return true;
+      if (textChannel != null) {
+        Role role = textChannel.getGuild().getRoleById(DiscordBotSettings.getchannelRoleID());
+        Member member = textChannel.getGuild().getMemberById(discordID);
+        if (role != null && member != null) {
+          textChannel.getGuild().removeRoleFromMember(member.getUser(), role).queue();
+          return true;
+        }
       }
     } else {
       this.logger.warning("You have not set integrated roles ID");
@@ -132,15 +133,16 @@ public class DiscordBot {
   public boolean createStatusEmbed() {
     if (DiscordBotSettings.discordStatusChannelIsSet() && !DiscordBotSettings.discordStatusMessageIsSet()) {
       TextChannel textChannel = this.jda.getTextChannelById(DiscordBotSettings.getStatusChannelID());
-      this.embedBuilder = new EmbedBuilder();
-      this.embedBuilder.setColor(Color.green);
-      this.embedBuilder.setTitle(DiscordBotSettings.getServerName() + " 🟢");
-      MessageEmbed embedMessage = this.embedBuilder.build();
-
-      textChannel.sendMessageEmbeds(embedMessage).queue(msg -> {
-        DiscordBotSettings.setStatusMessageID(msg.getId());
-      });
-
+      if (textChannel != null) {
+        this.embedBuilder = new EmbedBuilder();
+        this.embedBuilder.setColor(Color.green);
+        this.embedBuilder.setTitle(DiscordBotSettings.getServerName() + " 🟢");
+        MessageEmbed embedMessage = this.embedBuilder.build();
+  
+        textChannel.sendMessageEmbeds(embedMessage).queue(msg -> {
+          DiscordBotSettings.setStatusMessageID(msg.getId());
+        });
+      }
     } else {
       this.logger.warning("You have not set status channel id");
     }
@@ -150,18 +152,19 @@ public class DiscordBot {
   public boolean setStatusOnline() {
     if (DiscordBotSettings.discordStatusChannelIsSet() && DiscordBotSettings.discordStatusMessageIsSet()) {
       TextChannel textChannel = this.jda.getTextChannelById(DiscordBotSettings.getStatusChannelID());
-      textChannel.retrieveMessageById(DiscordBotSettings.getStatusMessageID()).queue(new Consumer<Message>() {
-        @Override
-        public void accept(Message msg) {
-          if (msg.getEmbeds().size() > 0) {
-            MessageEmbed em = msg.getEmbeds().get(0);
-            textChannel.editMessageEmbedsById(msg.getId(), new EmbedBuilder(em)
-                .setTitle(DiscordBotSettings.getServerName() + " 🟢").setColor(Color.green).clearFields().build())
-                .queue();
+      if (textChannel != null) {
+        textChannel.retrieveMessageById(DiscordBotSettings.getStatusMessageID()).queue(new Consumer<Message>() {
+          @Override
+          public void accept(Message msg) {
+            if (msg.getEmbeds().size() > 0) {
+              MessageEmbed em = msg.getEmbeds().get(0);
+              textChannel.editMessageEmbedsById(msg.getId(), new EmbedBuilder(em)
+                  .setTitle(DiscordBotSettings.getServerName() + " 🟢").setColor(Color.green).clearFields().build())
+                  .queue();
+            }
           }
-        }
-      });
-
+        });
+      }
     } else {
       this.logger.warning("You have not set status channel id or message");
     }
@@ -171,11 +174,13 @@ public class DiscordBot {
   public boolean setStatusOffline() {
     if (DiscordBotSettings.discordStatusChannelIsSet() && DiscordBotSettings.discordStatusMessageIsSet()) {
       TextChannel textChannel = this.jda.getTextChannelById(DiscordBotSettings.getStatusChannelID());
-      Message msg = textChannel.retrieveMessageById(DiscordBotSettings.getStatusMessageID()).complete();
-      if (msg != null && msg.getEmbeds().size() > 0) {
-        MessageEmbed em = msg.getEmbeds().get(0);
-        textChannel.editMessageEmbedsById(msg.getId(), new EmbedBuilder(em)
-            .setTitle(DiscordBotSettings.getServerName() + " 🔴").setColor(Color.red).clearFields().build()).complete();
+      if (textChannel != null) {
+        Message msg = textChannel.retrieveMessageById(DiscordBotSettings.getStatusMessageID()).complete();
+        if (msg != null && msg.getEmbeds().size() > 0) {
+          MessageEmbed em = msg.getEmbeds().get(0);
+          textChannel.editMessageEmbedsById(msg.getId(), new EmbedBuilder(em)
+              .setTitle(DiscordBotSettings.getServerName() + " 🔴").setColor(Color.red).clearFields().build()).complete();
+      }
         this.jda.shutdownNow();
       }
 
@@ -188,19 +193,20 @@ public class DiscordBot {
   public boolean addPlayer(String playerName) {
     if (DiscordBotSettings.discordStatusChannelIsSet() && DiscordBotSettings.discordStatusMessageIsSet()) {
       TextChannel textChannel = this.jda.getTextChannelById(DiscordBotSettings.getStatusChannelID());
-      textChannel.retrieveMessageById(DiscordBotSettings.getStatusMessageID()).queue(new Consumer<Message>() {
-        @Override
-        public void accept(Message msg) {
-          if (msg.getEmbeds().size() > 0) {
-            MessageEmbed em = msg.getEmbeds().get(0);
-            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH.mm");
-            LocalTime localTime = LocalTime.now();
-            textChannel.editMessageEmbedsById(msg.getId(),
-                new EmbedBuilder(em).addField(new Field(playerName, dtf.format(localTime), true)).build()).queue();
+      if (textChannel != null) {
+        textChannel.retrieveMessageById(DiscordBotSettings.getStatusMessageID()).queue(new Consumer<Message>() {
+          @Override
+          public void accept(Message msg) {
+            if (msg.getEmbeds().size() > 0) {
+              MessageEmbed em = msg.getEmbeds().get(0);
+              DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH.mm");
+              LocalTime localTime = LocalTime.now();
+              textChannel.editMessageEmbedsById(msg.getId(),
+                  new EmbedBuilder(em).addField(new Field(playerName, dtf.format(localTime), true)).build()).queue();
+            }
           }
-        }
-      });
-
+        });
+      }
     } else {
       this.logger.warning("You have not set status channel id or message");
     }
@@ -210,28 +216,31 @@ public class DiscordBot {
   public boolean removePlayer(String playerName) {
     if (DiscordBotSettings.discordStatusChannelIsSet() && DiscordBotSettings.discordStatusMessageIsSet()) {
       TextChannel textChannel = this.jda.getTextChannelById(DiscordBotSettings.getStatusChannelID());
-      textChannel.retrieveMessageById(DiscordBotSettings.getStatusMessageID()).queue(new Consumer<Message>() {
-        @Override
-        public void accept(Message msg) {
-          if (msg.getEmbeds().size() > 0) {
-            MessageEmbed em = msg.getEmbeds().get(0);
-            EmbedBuilder emb = new EmbedBuilder(em);
-            List<Field> fields = emb.getFields();
-
-            int i = -1;
-            for (Field f : fields) {
-              if (f.getName().equals(playerName)) {
-                i = fields.indexOf(f);
+      if (textChannel != null) {
+        textChannel.retrieveMessageById(DiscordBotSettings.getStatusMessageID()).queue(new Consumer<Message>() {
+          @Override
+          public void accept(Message msg) {
+            if (msg.getEmbeds().size() > 0) {
+              MessageEmbed em = msg.getEmbeds().get(0);
+              EmbedBuilder emb = new EmbedBuilder(em);
+              List<Field> fields = emb.getFields();
+  
+              int i = -1;
+              for (Field f : fields) {
+                String f2 = f.getName();
+                if (f2 != null && f2.equals(playerName)) {
+                  i = fields.indexOf(f);
+                }
               }
+              if (i > -1) {
+                emb.getFields().remove(i);
+              }
+  
+              textChannel.editMessageEmbedsById(msg.getId(), emb.build()).queue();
             }
-            if (i > -1) {
-              emb.getFields().remove(i);
-            }
-
-            textChannel.editMessageEmbedsById(msg.getId(), emb.build()).queue();
           }
-        }
-      });
+        });
+      }
 
     } else {
       this.logger.warning("You have not set status channel id or message");
@@ -243,7 +252,7 @@ public class DiscordBot {
 
     if (MineDisco.getPlugin(MineDisco.class).getConfig().getBoolean("integration.serverStatusChannel")) {
       this.setStatusOffline();
-    }    
+    }
   }
 
 }

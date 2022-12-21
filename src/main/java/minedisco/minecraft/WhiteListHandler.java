@@ -111,10 +111,13 @@ public class WhiteListHandler {
             }
             saveCustomConfig();
 
-            if (checkIfAccessVoteCountPositive(owner)) {
-                bot.addDefaultRoleToUser(getCustomConfig().getString(owner + ".discordID"));
-            } else {
-                bot.removeDefaultRoleToUser(getCustomConfig().getString(owner + ".discordID"));
+            String userDiscordId = getCustomConfig().getString(owner + ".discordID");
+            if (userDiscordId != null) {
+                if (checkIfAccessVoteCountPositive(owner)) {
+                    bot.addDefaultRoleToUser(userDiscordId);
+                } else {
+                    bot.removeDefaultRoleToUser(userDiscordId);
+                }
             }
         }
 

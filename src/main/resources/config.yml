@@ -3,7 +3,6 @@ discord:
   channelID: "DEFAULTCHANNELID"
   requestAccessChannelID: "ACCESSREQUESTCHANNELID"
   syncedChannelRoleID: "DEFAULTROLE"
-  commandPrefix: "!"
   serverName: "SERVERNAME"
   statusChannelID: "STATUSCHANNELID"
   statusMessageID: "STATUSMESSAGEID"

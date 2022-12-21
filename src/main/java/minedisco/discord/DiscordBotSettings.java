@@ -1,37 +1,69 @@
 package minedisco.discord;
 
+import javax.annotation.Nonnull;
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import minedisco.MineDisco;
 
 /**
  *
  */
+@ParametersAreNonnullByDefault
 public class DiscordBotSettings {
-    private static String discordChannelID;
-    private static String requestAccessChannelID;
-    private static String commandPrefix;
-    private static boolean enabledDiscordtoMinecraftChat;
-    private static String channelRoleID;
-    private static String serverName;
-    private static String statusChannelID;
-    private static String statusMessageID;
+    @Nonnull
+    private static String discordChannelID = "";
+    @Nonnull
+    private static String requestAccessChannelID = "";
+    private static boolean enabledDiscordtoMinecraftChat = true;
+    @Nonnull
+    private static String channelRoleID = "";
+    @Nonnull
+    private static String serverName = "";
+    @Nonnull
+    private static String statusChannelID = "";
+    @Nonnull
+    private static String statusMessageID = "";
 
     /**
      *
      */
     public DiscordBotSettings() {
-        discordChannelID = MineDisco.getPlugin(MineDisco.class).getConfig().getString("discord.channelID");
+        String chid = MineDisco.getPlugin(MineDisco.class).getConfig().getString("discord.channelID");
+        if (chid != null
+                && !chid.isEmpty()) {
+            discordChannelID = chid;
+        }
+
         enabledDiscordtoMinecraftChat = MineDisco.getPlugin(MineDisco.class).getConfig()
                 .getBoolean("integration.discordToMinecraftChat");
-        commandPrefix = MineDisco.getPlugin(MineDisco.class).getConfig().getString("discord.commandPrefix");
-        requestAccessChannelID = MineDisco.getPlugin(MineDisco.class).getConfig()
-                .getString("discord.requestAccessChannelID");
-        channelRoleID = MineDisco.getPlugin(MineDisco.class).getConfig().getString("discord.syncedChannelRoleID");
-        setServerName(MineDisco.getPlugin(MineDisco.class).getConfig().getString("discord.serverName"));
-        setStatusChannelID(MineDisco.getPlugin(MineDisco.class).getConfig().getString("discord.statusChannelID"));
 
-        statusMessageID = MineDisco.getPlugin(MineDisco.class).getConfig().getString("discord.statusMessageID");
+        String rchid = MineDisco.getPlugin(MineDisco.class).getConfig().getString("discord.requestAccessChannelID");
+        if (rchid != null) {
+            requestAccessChannelID = rchid;
+        }
+
+        String schid = MineDisco.getPlugin(MineDisco.class).getConfig().getString("discord.syncedChannelRoleID");
+        if (schid != null) {
+            channelRoleID = schid;
+        }    
+
+        String sname = MineDisco.getPlugin(MineDisco.class).getConfig().getString("discord.serverName");
+        if (sname != null) {
+            setServerName(sname);
+        }
+
+        String stchid= MineDisco.getPlugin(MineDisco.class).getConfig().getString("discord.statusChannelID");
+        if (stchid != null) {
+            setStatusChannelID(stchid);
+        }
+
+        String smeid = MineDisco.getPlugin(MineDisco.class).getConfig().getString("discord.statusMessageID");
+        if (smeid != null) {
+            statusMessageID = smeid;
+        }  
     }
 
+    @Nonnull
     public static String getServerName() {
         if (serverName == null || serverName.isEmpty()) {
             return "";
@@ -40,25 +72,8 @@ public class DiscordBotSettings {
         return serverName + ": ";
     }
 
-    public static void setServerName(String serverName) {
+    public static void setServerName(@Nonnull String serverName) {
         DiscordBotSettings.serverName = serverName;
-    }
-
-    /**
-     * 
-     */
-    public static String getCommandPrefix() {
-        return commandPrefix;
-    }
-
-    /**
-     * 
-     * @param newCommandPrefix
-     */
-    public static void setCommandPrefix(String newCommandPrefix) {
-        commandPrefix = newCommandPrefix;
-        MineDisco.getPlugin(MineDisco.class).getConfig().set("discord.commandPrefix", commandPrefix);
-        MineDisco.getPlugin(MineDisco.class).saveConfig();
     }
 
     /**
@@ -83,6 +98,7 @@ public class DiscordBotSettings {
     /**
      * @return the discordChannelID
      */
+    @Nonnull
     public static String getDiscordChannelID() {
         return discordChannelID;
     }
@@ -90,7 +106,7 @@ public class DiscordBotSettings {
     /**
      * @param newDiscordChannelID the discordChannelID to set
      */
-    public static void setDiscordChannelID(String newDiscordChannelID) {
+    public static void setDiscordChannelID(@Nonnull String newDiscordChannelID) {
         discordChannelID = newDiscordChannelID;
         MineDisco.getPlugin(MineDisco.class).getConfig().set("discord.channelID", discordChannelID);
         MineDisco.getPlugin(MineDisco.class).saveConfig();
@@ -106,8 +122,6 @@ public class DiscordBotSettings {
         }
         return true;
     }
-
-    
 
     /**
      *
@@ -130,6 +144,7 @@ public class DiscordBotSettings {
     /**
      * @return the discordChannelID
      */
+    @Nonnull
     public static String getchannelRoleID() {
         return channelRoleID;
     }
@@ -137,7 +152,7 @@ public class DiscordBotSettings {
     /**
      * @param newDiscordChannelID the discordChannelID to set
      */
-    public static void setChannelRoleID(String newChannelRoleID) {
+    public static void setChannelRoleID(@Nonnull String newChannelRoleID) {
         channelRoleID = newChannelRoleID;
         MineDisco.getPlugin(MineDisco.class).getConfig().set("discord.syncedChannelRoleID", channelRoleID);
         MineDisco.getPlugin(MineDisco.class).saveConfig();
@@ -157,6 +172,7 @@ public class DiscordBotSettings {
     /**
      * @return the requestAccessChannelID
      */
+    @Nonnull
     public static String getRequestAccessID() {
         return requestAccessChannelID;
     }
@@ -164,7 +180,7 @@ public class DiscordBotSettings {
     /**
      * @param newDiscordChannelID the requestAccessChannelID to set
      */
-    public static void setRequestAccessChannelID(String newDiscordChannelID) {
+    public static void setRequestAccessChannelID(@Nonnull String newDiscordChannelID) {
         requestAccessChannelID = newDiscordChannelID;
         MineDisco.getPlugin(MineDisco.class).getConfig().set("discord.requestAccessChannelID", requestAccessChannelID);
         MineDisco.getPlugin(MineDisco.class).saveConfig();
@@ -181,22 +197,24 @@ public class DiscordBotSettings {
         return true;
     }
 
+    @Nonnull
     public static String getStatusChannelID() {
         return statusChannelID;
     }
 
-    public static void setStatusChannelID(String statusChannelID) {
+    public static void setStatusChannelID(@Nonnull String statusChannelID) {
         DiscordBotSettings.statusChannelID = statusChannelID;
         MineDisco.getPlugin(MineDisco.class).getConfig().set("discord.statusChannelID", statusChannelID);
         MineDisco.getPlugin(MineDisco.class).saveConfig();
     }
 
+    @Nonnull
     public static String getStatusMessageID() {
         return statusMessageID;
 
     }
 
-    public static void setStatusMessageID(String statusMessageID) {
+    public static void setStatusMessageID(@Nonnull String statusMessageID) {
         DiscordBotSettings.statusMessageID = statusMessageID;
         MineDisco.getPlugin(MineDisco.class).getConfig().set("discord.statusMessageID", statusMessageID);
         MineDisco.getPlugin(MineDisco.class).saveConfig();
